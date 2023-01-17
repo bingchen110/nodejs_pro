@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/javascripts/socketio.js"></script>
+    <title>Document</title>
+</head>
+
+<body>
+    chat页面
+    <input type="text" id="text"><button id="send">send</button>
+    <select id="chatList">
+
+    </select>
+
+    <script>
+        var select = document.querySelector('#chatList')
+        var text = document.querySelector('#text')
+        var send = document.querySelector('#send')
+        const websocketType = {
+            Error: 0,
+            GroupList: 1,
+            GroupChat: 2,
+            SingleChat: 3
+        }
+
+        const socket = io(`ws://localhost:3000?token=${localStorage.getItem('token')}`); // 默认 连接localhost
+
+        socket.on(websocketType.GroupChat, (msg) => {
+            var title = msg.user ? msg.user.username : "广播"
+            console.log(title + ":" + msg.data);
+        })
+        socket.on(websocketType.SingleChat, (msgObj) =>{
+            console.log(msgObj.user, msgObj.data);
+        })
+        socket.on(websocketType.Error, (msg) => {
+            localStorage.removeItem('token')
+            location.href = "/login"
+        })
+
+        socket.on(websocketType.GroupList, (msgObj) => {
+            // console.log(msgObj.data);
+            const onlineData = msgObj.data
+            select.innerHTML = ''
+            select.innerHTML = onlineData.map(item => `
+                        <option value="all">all</option>
+                        <option value="${item.username}">${item.username}</option>
+                    `).join('')
+        })
+
+
+        send.onclick = () => {
+            if (select.value === 'all') {
+                // 群聊
+                socket.emit(websocketType.GroupChat, createMessage(text.value))
+            } else {
+                // 私聊
+                socket.emit(websocketType.SingleChat, createMessage(text.value, select.value))
+            }
+        }
+
+        function createMessage(data, to) {
+            return {
+                data,
+                to
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "mocha_test",
+  "version": "1.0.0",
+  "description": "",
+  "main": "sum.js",
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^1.2.2",
+    "chai": "^4.3.7",
+    "koa": "^2.14.1",
+    "mocha": "^10.2.0",
+    "supertest": "^6.3.3"
+  }
+}
